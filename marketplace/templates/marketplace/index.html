@@ -3,9 +3,43 @@
 {% block title %}Home - UniCycle{% endblock %}
 
 {% block content %}
-    <div class="text-center">
+    <div class="text-center mb-5">
         <h1 class="display-4">Welcome to UniCycle ♻️</h1>
         <p class="lead">The safe, sustainable campus marketplace for students and staff.</p>
-        <a href="#" class="btn btn-primary btn-lg mt-3">Browse Items</a>
+    </div>
+
+    <h2 class="mb-4">Latest Items</h2>
+    
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        
+        {% for item in listings %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <span>No Image</span>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-primary fw-bold">£{{ item.price }}</h6>
+                    
+                    <p class="card-text text-truncate">{{ item.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">📍 {{ item.pickup_location }}</small><br>
+                        <small class="text-muted">🏷️ {{ item.category.name }}</small>
+                    </p>
+                </div>
+                <div class="card-footer bg-white border-top-0">
+                    <a href="#" class="btn btn-outline-primary w-100">View Details</a>
+                </div>
+            </div>
+        </div>
+        
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="text-muted">No items available right now. Be the first to post!</p>
+        </div>
+        {% endfor %}
+
     </div>
 {% endblock %}
