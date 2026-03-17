@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Listing, ListingImage
+from .models import Listing, ListingImage, Category
 from .forms import CustomUserCreationForm
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
@@ -10,25 +10,29 @@ from .forms import CustomUserCreationForm, ListingForm
 
 # 首页视图
 def index(request):
-    # 1. 默认捞出所有 Available 的物品
-    listings = Listing.objects.filter(status='Available').order_by('-created')
-
-    # 2. 尝试从网址里获取搜索词 (比如 /?q=textbook)
-    search_query = request.GET.get('q')
-
-    # 3. 如果用户真的输入了搜索词，我们就进行过滤
-    if search_query:
+    query = request.GET.get('q')
+    category_id = request.GET.get('category')
+    
+    listings = Listing.objects.all().order_by('-created')
+    categories = Category.objects.all()
+    
+    if query:
         listings = listings.filter(
-            Q(title__icontains=search_query) | 
-            Q(description__icontains=search_query)
+            Q(title__icontains=query) | 
+            Q(description__icontains=query)
         )
-
-    # 4. 把数据和搜索词打包，发给网页
-    context = {
+        
+    selected_category = None
+    if category_id and category_id.isdigit():
+        selected_category = int(category_id)
+        listings = listings.filter(category_id=selected_category)
+        
+    return render(request, 'marketplace/index.html', {
         'listings': listings,
-        'search_query': search_query,
-    }
-    return render(request, 'marketplace/index.html', context)
+        'search_query': query,
+        'categories': categories, 
+        'selected_category': selected_category
+    })
 
 # 1. 注册视图
 def register_user(request):

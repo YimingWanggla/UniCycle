@@ -1,55 +1,97 @@
 {% extends 'marketplace/base.html' %}
-
 {% block title %}Home - UniCycle{% endblock %}
 
 {% block content %}
-    <div class="text-center mb-5">
-        <h1 class="display-4">Welcome to UniCycle ♻️</h1>
-        <p class="lead">The safe, sustainable campus marketplace for students and staff.</p>
-    </div>
+<div class="text-center mb-5 mt-4">
+    <h1 class="display-4 artistic-title">Welcome to UniCycle ♻️</h1>
+    <p class="lead text-muted">The safe, sustainable campus marketplace for students and staff.</p>
+</div>
 
-    {% if search_query %}
-        <h2 class="mb-4">Search Results for "<span class="text-primary">{{ search_query }}</span>"</h2>
-    {% else %}
-        <h2 class="mb-4">Latest Items</h2>
-    {% endif %}
+<div class="row">
     
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        
-        {% for item in listings %}
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-img-top overflow-hidden bg-white d-flex align-items-center justify-content-center" style="height: 200px; padding: 0.5rem;">
-                    {% if item.images.first %}
-                        <img src="{{ item.images.first.image.url }}" class="mw-100 mh-100" style="object-fit: contain;" alt="{{ item.title }}">
-                    {% else %}
-                        <div class="text-muted">
-                            <span>No Image</span>
-                        </div>
-                    {% endif %}
-                </div>
-                
-                <div class="card-body">
-                    <h5 class="card-title">{{ item.title }}</h5>
-                    <h6 class="card-subtitle mb-2 text-primary fw-bold">£{{ item.price }}</h6>
+    <div class="col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 20px; z-index: 1;">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4">
+                <h5 class="fw-bold mb-0 text-primary">📂 Categories</h5>
+            </div>
+            <div class="card-body p-3">
+                <div class="list-group list-group-flush gap-1">
+                    <a href="{% url 'marketplace:index' %}" 
+                       class="list-group-item list-group-item-action rounded-3 border-0 transition-all 
+                              {% if not selected_category %}active shadow-sm fw-bold{% else %}text-muted{% endif %}">
+                        🌟 All Items
+                    </a>
                     
-                    <p class="card-text text-truncate">{{ item.description }}</p>
-                    <p class="card-text">
-                        <small class="text-muted">📍 {{ item.pickup_location }}</small><br>
-                        <small class="text-muted">🏷️ {{ item.category.name }}</small>
-                    </p>
-                </div>
-                <div class="card-footer bg-white border-top-0">
-                    <a href="{% url 'marketplace:listing_detail' item.id %}" class="btn btn-outline-primary w-100 stretched-link">View Details</a>
+                    {% for cat in categories %}
+                        <a href="{% url 'marketplace:index' %}?category={{ cat.id }}" 
+                           class="list-group-item list-group-item-action rounded-3 border-0 transition-all 
+                                  {% if selected_category == cat.id %}active shadow-sm fw-bold{% else %}text-muted{% endif %}">
+                            🏷️ {{ cat.name }}
+                        </a>
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        
-        {% empty %}
-        <div class="col-12 text-center">
-            <p class="text-muted">No items available right now. Be the first to post!</p>
-        </div>
-        {% endfor %}
-
     </div>
+
+    <div class="col-lg-9">
+        
+        {% if search_query %}
+            <h3 class="mb-4">Search Results for "<span class="text-primary">{{ search_query }}</span>"</h3>
+        {% elif selected_category %}
+            <h3 class="mb-4">Browsing Category</h3>
+        {% else %}
+            <h3 class="mb-4">Latest Items</h3>
+        {% endif %}
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            {% for item in listings %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 hover-lift transition-all">
+                        
+                        <div class="card-img-top overflow-hidden bg-light d-flex align-items-center justify-content-center border-bottom" style="height: 200px; padding: 0.5rem; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                            {% if item.images.first %}
+                                <img src="{{ item.images.first.image.url }}" class="mw-100 mh-100" style="object-fit: contain;" alt="{{ item.title }}">
+                            {% else %}
+                                <div class="text-muted d-flex flex-column align-items-center">
+                                    <span class="fs-1">📦</span>
+                                    <span class="small mt-2">No Image</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold text-truncate mb-1" title="{{ item.title }}">{{ item.title }}</h5>
+                            <h6 class="card-subtitle mb-3 text-primary fs-5 fw-bold">£{{ item.price }}</h6>
+                            <p class="card-text text-muted small text-truncate-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ item.description }}
+                            </p>
+                            
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                <small class="text-muted">📍 {{ item.pickup_location }}</small>
+                                <span class="badge bg-light text-dark border">{{ item.category.name }}</span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-top-0 p-3 pt-0">
+                            <a href="{% url 'marketplace:listing_detail' item.id %}" class="btn btn-outline-primary w-100 rounded-pill fw-bold">View Details</a>
+                        </div>
+                        
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-5">
+                    <h3 class="text-muted">No items found here yet. 😅</h3>
+                    <p>Try browsing another category or be the first to post!</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .transition-all { transition: all 0.2s ease-in-out; }
+    .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    .list-group-item.active { background-color: #0d6efd !important; color: white !important; }
+</style>
 {% endblock %}
