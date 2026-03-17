@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const preview = document.getElementById('image-preview');
     const previewContainer = document.getElementById('preview-container');
     const dropText = document.getElementById('drop-text');
+    const form = document.getElementById('postForm'); 
 
     dropZone.onclick = () => fileInput.click();
 
@@ -56,26 +57,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add('bg-secondary', 'text-white'); };
     dropZone.ondragleave = () => { dropZone.classList.remove('bg-secondary', 'text-white'); };
+    
     dropZone.ondrop = e => {
         e.preventDefault();
         dropZone.classList.remove('bg-secondary', 'text-white');
-        handleFiles(e.dataTransfer.files);
+        
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            handleFiles(e.dataTransfer.files);
+        }
     };
 
     function handleFiles(files) {
         if (files.length > 0) {
             previewContainer.classList.remove('d-none');
             dropText.classList.add('d-none');
-            previewContainer.innerHTML = ''; // 清空之前的预览
+            previewContainer.innerHTML = ''; 
             
+            let hasOversized = false;
+
             Array.from(files).forEach((file, index) => {
-                // 安全限制：检查文件大小
                 if (file.size > 2 * 1024 * 1024) {
+                    hasOversized = true;
                     alert(`❌ File "${file.name}" is too large! Max size is 2MB.`);
-                    return; // 跳过这张过大的图片
+                    return; 
                 }
 
-                // 生成多图预览
                 const reader = new FileReader();
                 reader.onload = e => {
                     const img = document.createElement('img');
@@ -84,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     img.style.height = '120px';
                     img.style.objectFit = 'cover';
                     
-                    // 给第一张图加个蓝色边框和标签，提示它是封面
                     if (index === 0) {
                         img.style.border = '3px solid #0d6efd';
                     }
@@ -92,16 +98,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 reader.readAsDataURL(file);
             });
+
+            if (hasOversized) {
+                fileInput.value = '';
+                previewContainer.innerHTML = '';
+                previewContainer.classList.add('d-none');
+                dropText.classList.remove('d-none');
+            }
         }
     }
 
-    // 字数统计逻辑
     const desc = document.getElementById('id_description');
     if(desc) {
         desc.addEventListener('input', function() {
             document.getElementById('charCount').textContent = this.value.length + ' characters';
         });
     }
+
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
 });
 </script>
 

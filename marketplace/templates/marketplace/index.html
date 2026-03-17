@@ -51,7 +51,7 @@
                         
                         <div class="card-img-top overflow-hidden bg-light d-flex align-items-center justify-content-center border-bottom" style="height: 200px; padding: 0.5rem; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
                             {% if item.images.first %}
-                                <img src="{{ item.images.first.image.url }}" class="mw-100 mh-100" style="object-fit: contain;" alt="{{ item.title }}">
+                                <img src="{{ item.images.first.image.url }}" class="mw-100 mh-100" style="object-fit: contain;" alt="{{ item.title }}" loading="lazy">
                             {% else %}
                                 <div class="text-muted d-flex flex-column align-items-center">
                                     <span class="fs-1">📦</span>
