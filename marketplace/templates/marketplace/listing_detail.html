@@ -12,14 +12,31 @@
     <div class="row bg-white p-4 rounded-4 shadow-sm">
         
         <div class="col-md-6 mb-4 mb-md-0">
-            <div class="card border-0 rounded-4 overflow-hidden shadow-sm">
-                {% if listing.image %}
-                    <img src="{{ listing.image.url }}" class="img-fluid w-100" style="object-fit: cover; min-height: 400px;" alt="{{ listing.title }}">
+            <div class="card border-0 rounded-4 overflow-hidden shadow-sm position-relative d-flex align-items-center justify-content-center bg-light" style="min-height: 400px;">
+
+                {% if listing.images.all %}
+                    {% for img in listing.images.all %}
+                        <img src="{{ img.image.url }}" 
+                            class="carousel-slide img-fluid w-100 {% if not forloop.first %}d-none{% endif %}" 
+                            style="object-fit: contain; max-height: 400px; transition: opacity 0.3s ease-in-out;" 
+                            alt="{{ listing.title }} - Image {{ forloop.counter }}">
+                    {% endfor %}
+
+                    {% if listing.images.all|length > 1 %}
+                        <button id="prevBtn" class="btn btn-light position-absolute top-50 start-0 translate-middle-y ms-3 shadow text-dark fs-5" style="border-radius: 50%; width: 45px; height: 45px; z-index: 10;">
+                            ❮
+                        </button>
+                        <button id="nextBtn" class="btn btn-light position-absolute top-50 end-0 translate-middle-y me-3 shadow text-dark fs-5" style="border-radius: 50%; width: 45px; height: 45px; z-index: 10;">
+                            ❯
+                        </button>
+                    {% endif %}
+
                 {% else %}
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                    <div class="bg-secondary text-white w-100 h-100 d-flex align-items-center justify-content-center position-absolute top-0 start-0">
                         <span class="fs-4">No Image Available</span>
                     </div>
                 {% endif %}
+
             </div>
         </div>
         
@@ -48,10 +65,105 @@
                         {{ listing.seller.display_name|default:listing.seller.email }}
                     </h5>
                 </div>
-                <a href="#" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold">✉️ Contact Seller</a>
+                <button id="contactBtn" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold transition-all" data-email="{{ listing.seller.email }}">
+                    ✉️ Contact Seller
+                </button>
             </div>
             
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactBtn = document.getElementById('contactBtn');
+        
+        if (contactBtn) {
+            const originalWidth = contactBtn.offsetWidth;
+            contactBtn.style.minWidth = originalWidth + 'px';
+
+            contactBtn.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                
+                const sellerEmail = this.getAttribute('data-email');
+                
+                navigator.clipboard.writeText(sellerEmail).then(() => {
+                    const originalText = "✉️ Contact Seller";
+                    
+                    contactBtn.classList.remove('btn-primary');
+                    contactBtn.classList.add('btn-success'); 
+                    
+                    contactBtn.innerHTML = '✅ Email Copied!';
+                    
+                    setTimeout(() => {
+                        contactBtn.classList.remove('btn-success');
+                        contactBtn.classList.add('btn-primary');
+                        contactBtn.innerHTML = originalText;
+                    }, 2500);
+                    
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    alert("Failed to copy email. The email is: " + sellerEmail);
+                });
+            });
+        }
+        // 多图轮播交互逻辑 (Front-end Interactivity) ==========
+        const slides = document.querySelectorAll('.carousel-slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        if (slides.length > 1 && prevBtn && nextBtn) {
+            let currentIndex = 0;
+            const totalSlides = slides.length;
+
+            function updateSlider() {
+                // 1. 切换图片显示状态
+                slides.forEach((slide, index) => {
+                    if (index === currentIndex) {
+                        slide.classList.remove('d-none');
+                    } else {
+                        slide.classList.add('d-none');
+                    }
+                });
+
+                // 2. 左箭头逻辑
+                if (currentIndex === 0) {
+                    prevBtn.disabled = true;
+                    prevBtn.style.opacity = '0.3';
+                    prevBtn.style.cursor = 'not-allowed';
+                } else {
+                    prevBtn.disabled = false;
+                    prevBtn.style.opacity = '1';
+                    prevBtn.style.cursor = 'pointer';
+                }
+
+                // 3. 右箭头逻辑
+                if (currentIndex === totalSlides - 1) {
+                    nextBtn.disabled = true;
+                    nextBtn.style.opacity = '0.3';
+                    nextBtn.style.cursor = 'not-allowed';
+                } else {
+                    nextBtn.disabled = false;
+                    nextBtn.style.opacity = '1';
+                    nextBtn.style.cursor = 'pointer';
+                }
+            }
+
+            updateSlider();
+
+            prevBtn.addEventListener('click', function() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateSlider();
+                }
+            });
+
+            nextBtn.addEventListener('click', function() {
+                if (currentIndex < totalSlides - 1) {
+                    currentIndex++;
+                    updateSlider();
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

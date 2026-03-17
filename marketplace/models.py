@@ -39,10 +39,17 @@ class Listing(models.Model):
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='Available')
     pickup_location = models.CharField(max_length=128)
     created = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='listings/', blank=True, null=True)
 
     def __str__(self):
         return self.title
+    
+class ListingImage(models.Model):
+    # related_name='images' 非常关键！它能让我们在网页里方便地通过 item.images 找到所有图片
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='listings/')
+    
+    def __str__(self):
+        return f"Image for {self.listing.title}"
 
 # 4. 物品图片模型 (对应 ER 图的 ListingImage 表)
 class ListingImage(models.Model):

@@ -19,11 +19,11 @@
         {% for item in listings %}
         <div class="col">
             <div class="card h-100 shadow-sm">
-                <div class="card-img-top overflow-hidden" style="height: 200px;">
-                    {% if item.image %}
-                        <img src="{{ item.image.url }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ item.title }}">
+                <div class="card-img-top overflow-hidden bg-white d-flex align-items-center justify-content-center" style="height: 200px; padding: 0.5rem;">
+                    {% if item.images.first %}
+                        <img src="{{ item.images.first.image.url }}" class="mw-100 mh-100" style="object-fit: contain;" alt="{{ item.title }}">
                     {% else %}
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center h-100">
+                        <div class="text-muted">
                             <span>No Image</span>
                         </div>
                     {% endif %}

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Listing
+from .models import Listing, ListingImage
 from .forms import CustomUserCreationForm
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
@@ -77,15 +77,20 @@ def listing_detail(request, listing_id):
 # 5. 发布物品视图 (没登录的人会被赶去登录页)
 @login_required(login_url='marketplace:login')
 def post_item(request):
-    if request.method == 'POST':       
+    if request.method == 'POST':
         form = ListingForm(request.POST, request.FILES)
         if form.is_valid():
             listing = form.save(commit=False)
             listing.seller = request.user
             listing.save()
-            messages.success(request, "🎉 Item posted with image successfully!")
+            
+            images = request.FILES.getlist('images')
+            for img in images:
+                ListingImage.objects.create(listing=listing, image=img)
+                
+            messages.success(request, "🎉 Item posted successfully with images!")
             return redirect('marketplace:index')
     else:
         form = ListingForm()
-
+        
     return render(request, 'marketplace/post_item.html', {'form': form})

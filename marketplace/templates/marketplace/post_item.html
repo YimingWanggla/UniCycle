@@ -17,10 +17,11 @@
                         </div>
                         <div id="drop-text">
                             <i class="fs-1 text-primary">☁️</i>
-                            <p class="mt-2 fw-bold">Drag & Drop or Click to Upload Image</p>
+                            <p class="mt-2 fw-bold">Upload Images (Select multiple)</p>
+                            <small class="text-muted">The <strong class="text-primary">first image</strong> will be used as the cover thumbnail.<br>Max size per image: 2MB (JPG, PNG)</small>
                             <small class="text-muted">Max size: 2MB (JPG, PNG)</small>
                         </div>
-                        <input type="file" name="image" id="file-input" class="d-none" accept="image/*">
+                        <input type="file" name="images" id="file-input" class="d-none" accept="image/*" multiple>
                     </div>
 
                     <div class="row g-3">
@@ -63,23 +64,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleFiles(files) {
         if (files.length > 0) {
-            const file = files[0];
+            previewContainer.classList.remove('d-none');
+            dropText.classList.add('d-none');
+            previewContainer.innerHTML = ''; // 清空之前的预览
             
-            // 安全限制
-            if (file.size > 2 * 1024 * 1024) {
-                alert("❌ File too large! Max size is 2MB to ensure site security.");
-                fileInput.value = "";
-                return;
-            }
+            Array.from(files).forEach((file, index) => {
+                // 安全限制：检查文件大小
+                if (file.size > 2 * 1024 * 1024) {
+                    alert(`❌ File "${file.name}" is too large! Max size is 2MB.`);
+                    return; // 跳过这张过大的图片
+                }
 
-            // 显示预览图
-            const reader = new FileReader();
-            reader.onload = e => {
-                preview.src = e.target.result;
-                previewContainer.classList.remove('d-none');
-                dropText.classList.add('d-none');
-            };
-            reader.readAsDataURL(file);
+                // 生成多图预览
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'img-thumbnail me-2 mb-2 shadow-sm';
+                    img.style.height = '120px';
+                    img.style.objectFit = 'cover';
+                    
+                    // 给第一张图加个蓝色边框和标签，提示它是封面
+                    if (index === 0) {
+                        img.style.border = '3px solid #0d6efd';
+                    }
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
         }
     }
 
