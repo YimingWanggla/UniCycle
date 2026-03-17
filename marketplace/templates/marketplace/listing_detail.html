@@ -1,0 +1,53 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}{{ listing.title }} - UniCycle{% endblock %}
+
+{% block content %}
+<div class="container mt-2 mb-5">
+    
+    <a href="{% url 'marketplace:index' %}" class="btn btn-link text-decoration-none mb-4 p-0">
+        &larr; Back to Listings
+    </a>
+
+    <div class="row bg-white p-4 rounded-4 shadow-sm">
+        
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card border-0 rounded-4 overflow-hidden h-100">
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                    <span class="fs-4">No Image Available</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 d-flex flex-column justify-content-center ps-md-5">
+            
+            <h2 class="artistic-title mb-2">{{ listing.title }}</h2>
+            <h3 class="text-primary fw-bold mb-3">£{{ listing.price }}</h3>
+            
+            <div class="mb-4">
+                <span class="badge bg-info text-dark me-2 fs-6 px-3 py-2 rounded-pill">{{ listing.category.name }}</span>
+                <span class="badge {% if listing.status == 'Available' %}bg-success{% else %}bg-secondary{% endif %} fs-6 px-3 py-2 rounded-pill">{{ listing.status }}</span>
+            </div>
+
+            <h5 class="artistic-title text-muted mt-2">Description</h5>
+            <p class="fs-5">{{ listing.description }}</p>
+
+            <h5 class="artistic-title text-muted mt-3">Pickup Location</h5>
+            <p class="fs-5">📍 {{ listing.pickup_location }}</p>
+
+            <hr class="my-4 text-muted">
+
+            <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-4 border">
+                <div>
+                    <p class="mb-0 text-muted small">Seller</p>
+                    <h5 class="mb-0 fw-bold">
+                        {{ listing.seller.display_name|default:listing.seller.email }}
+                    </h5>
+                </div>
+                <a href="#" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold">✉️ Contact Seller</a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

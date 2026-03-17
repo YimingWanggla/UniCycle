@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -47,3 +47,9 @@ def logout_user(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect('marketplace:index')
+
+# 4. 商品详情视图
+def listing_detail(request, listing_id):
+    # 根据传入的 listing_id 去数据库查找，找不到就返回 404 页面
+    listing = get_object_or_404(Listing, pk=listing_id)
+    return render(request, 'marketplace/listing_detail.html', {'listing': listing})
