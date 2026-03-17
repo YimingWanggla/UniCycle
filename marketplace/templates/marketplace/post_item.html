@@ -1,0 +1,100 @@
+{% extends 'marketplace/base.html' %}
+{% block title %}Post Item - UniCycle{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-lg border-0 rounded-4 mt-3 mb-5">
+            <div class="card-body p-5">
+                <h2 class="text-center artistic-title mb-4">Post a New Item 📦</h2>
+                
+                <form method="POST" enctype="multipart/form-data" id="postForm">
+                    {% csrf_token %}
+
+                    <div id="drop-zone" class="border border-2 border-dashed rounded-4 p-4 text-center mb-4 bg-light" style="cursor: pointer;">
+                        <div id="preview-container" class="d-none mb-3">
+                            <img id="image-preview" src="#" alt="Preview" class="img-fluid rounded-3" style="max-height: 200px;">
+                        </div>
+                        <div id="drop-text">
+                            <i class="fs-1 text-primary">☁️</i>
+                            <p class="mt-2 fw-bold">Drag & Drop or Click to Upload Image</p>
+                            <small class="text-muted">Max size: 2MB (JPG, PNG)</small>
+                        </div>
+                        <input type="file" name="image" id="file-input" class="d-none" accept="image/*">
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12">{{ form.title.label_tag }}{{ form.title }}</div>
+                        <div class="col-md-6">{{ form.category.label_tag }}{{ form.category }}</div>
+                        <div class="col-md-6">{{ form.price.label_tag }}{{ form.price }}</div>
+                        <div class="col-12">{{ form.pickup_location.label_tag }}{{ form.pickup_location }}</div>
+                        <div class="col-12">
+                            {{ form.description.label_tag }}{{ form.description }}
+                            <div class="text-end"><small id="charCount" class="text-muted">0 characters</small></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold mt-4 shadow">Publish Item</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const preview = document.getElementById('image-preview');
+    const previewContainer = document.getElementById('preview-container');
+    const dropText = document.getElementById('drop-text');
+
+    dropZone.onclick = () => fileInput.click();
+
+    fileInput.onchange = e => handleFiles(e.target.files);
+
+    dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add('bg-secondary', 'text-white'); };
+    dropZone.ondragleave = () => { dropZone.classList.remove('bg-secondary', 'text-white'); };
+    dropZone.ondrop = e => {
+        e.preventDefault();
+        dropZone.classList.remove('bg-secondary', 'text-white');
+        handleFiles(e.dataTransfer.files);
+    };
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            
+            // 安全限制
+            if (file.size > 2 * 1024 * 1024) {
+                alert("❌ File too large! Max size is 2MB to ensure site security.");
+                fileInput.value = "";
+                return;
+            }
+
+            // 显示预览图
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.src = e.target.result;
+                previewContainer.classList.remove('d-none');
+                dropText.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // 字数统计逻辑
+    const desc = document.getElementById('id_description');
+    if(desc) {
+        desc.addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length + ' characters';
+        });
+    }
+});
+</script>
+
+<style>
+    .border-dashed { border-style: dashed !important; }
+    #drop-zone:hover { border-color: #0d6efd !important; transition: 0.3s; }
+</style>
+{% endblock %}

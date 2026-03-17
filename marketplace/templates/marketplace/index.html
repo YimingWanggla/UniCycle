@@ -8,15 +8,25 @@
         <p class="lead">The safe, sustainable campus marketplace for students and staff.</p>
     </div>
 
-    <h2 class="mb-4">Latest Items</h2>
+    {% if search_query %}
+        <h2 class="mb-4">Search Results for "<span class="text-primary">{{ search_query }}</span>"</h2>
+    {% else %}
+        <h2 class="mb-4">Latest Items</h2>
+    {% endif %}
     
     <div class="row row-cols-1 row-cols-md-3 g-4">
         
         {% for item in listings %}
         <div class="col">
             <div class="card h-100 shadow-sm">
-                <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <span>No Image</span>
+                <div class="card-img-top overflow-hidden" style="height: 200px;">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ item.title }}">
+                    {% else %}
+                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center h-100">
+                            <span>No Image</span>
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div class="card-body">

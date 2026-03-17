@@ -4,11 +4,31 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Listing
 from .forms import CustomUserCreationForm
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from .forms import CustomUserCreationForm, ListingForm
 
 # 首页视图
 def index(request):
-    recent_listings = Listing.objects.filter(status='Available').order_by('-created')
-    return render(request, 'marketplace/index.html', {'listings': recent_listings})
+    # 1. 默认捞出所有 Available 的物品
+    listings = Listing.objects.filter(status='Available').order_by('-created')
+
+    # 2. 尝试从网址里获取搜索词 (比如 /?q=textbook)
+    search_query = request.GET.get('q')
+
+    # 3. 如果用户真的输入了搜索词，我们就进行过滤
+    if search_query:
+        listings = listings.filter(
+            Q(title__icontains=search_query) | 
+            Q(description__icontains=search_query)
+        )
+
+    # 4. 把数据和搜索词打包，发给网页
+    context = {
+        'listings': listings,
+        'search_query': search_query,
+    }
+    return render(request, 'marketplace/index.html', context)
 
 # 1. 注册视图
 def register_user(request):
@@ -53,3 +73,19 @@ def listing_detail(request, listing_id):
     # 根据传入的 listing_id 去数据库查找，找不到就返回 404 页面
     listing = get_object_or_404(Listing, pk=listing_id)
     return render(request, 'marketplace/listing_detail.html', {'listing': listing})
+
+# 5. 发布物品视图 (没登录的人会被赶去登录页)
+@login_required(login_url='marketplace:login')
+def post_item(request):
+    if request.method == 'POST':       
+        form = ListingForm(request.POST, request.FILES)
+        if form.is_valid():
+            listing = form.save(commit=False)
+            listing.seller = request.user
+            listing.save()
+            messages.success(request, "🎉 Item posted with image successfully!")
+            return redirect('marketplace:index')
+    else:
+        form = ListingForm()
+
+    return render(request, 'marketplace/post_item.html', {'form': form})

@@ -39,6 +39,7 @@ class Listing(models.Model):
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='Available')
     pickup_location = models.CharField(max_length=128)
     created = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='listings/', blank=True, null=True)
 
     def __str__(self):
         return self.title
