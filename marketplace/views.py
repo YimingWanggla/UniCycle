@@ -44,6 +44,8 @@ def register_user(request):
                 messages.error(request, "Access denied. You must use a university email (.edu or .ac.uk).")
                 return render(request, 'marketplace/register.html', {'form': form})
             
+            user.username = user.email
+
             user.save()
             login(request, user) # You will be automatically logged in after successful registration.
             messages.success(request, f"Welcome to UniCycle, {user.email}!")

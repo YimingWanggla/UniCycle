@@ -62,6 +62,9 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <form class="d-flex mx-auto w-50" action="{% url 'marketplace:index' %}" method="GET">
+                    {% if request.GET.category %}
+                        <input type="hidden" name="category" value="{{ request.GET.category }}">
+                    {% endif %}
                     <input class="form-control me-2" type="search" name="q" placeholder="Search items (e.g., textbook)..." aria-label="Search" value="{{ request.GET.q }}">
                     <button class="btn btn-outline-primary" type="submit">Search</button>
                 </form>
