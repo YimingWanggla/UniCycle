@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
-from .models import Category
+from django.contrib.auth import get_user_model
+from .models import Category, Listing
 
 class CategoryModelTest(TestCase):
     def setUp(self):
@@ -22,3 +23,44 @@ class IndexViewTest(TestCase):
         # Ensure unauthenticated users are redirected (HTTP 302)
         response = self.client.get(reverse('marketplace:post_item'))
         self.assertEqual(response.status_code, 302)
+
+class ListingDeactivateTest(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name="Electronics")
+        self.user = get_user_model().objects.create_user(
+            username="seller@example.com",
+            email="seller@example.com",
+            password="testpass123"
+        )
+        self.other_user = get_user_model().objects.create_user(
+            username="other@example.com",
+            email="other@example.com",
+            password="testpass123"
+        )
+        self.listing = Listing.objects.create(
+            seller=self.user,
+            category=self.category,
+            title="Laptop",
+            description="Good condition",
+            price="100.00",
+            pickup_location="Campus",
+            status="Available",
+        )
+
+    def test_seller_can_deactivate_listing(self):
+        self.client.login(email="seller@example.com", password="testpass123")
+        response = self.client.post(
+            reverse('marketplace:deactivate_listing', args=[self.listing.id])
+        )
+        self.listing.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.listing.status, "Inactive")
+
+    def test_non_seller_cannot_deactivate_listing(self):
+        self.client.login(email="other@example.com", password="testpass123")
+        response = self.client.post(
+            reverse('marketplace:deactivate_listing', args=[self.listing.id])
+        )
+        self.listing.refresh_from_db()
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(self.listing.status, "Available")

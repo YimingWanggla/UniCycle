@@ -27,6 +27,7 @@ class Listing(models.Model):
         ('Available', 'Available'),
         ('Reserved', 'Reserved'),
         ('Sold', 'Sold'),
+        ('Inactive', 'Inactive'),
     ]
 
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='listings')

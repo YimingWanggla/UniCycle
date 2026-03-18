@@ -12,7 +12,7 @@ def index(request):
     query = request.GET.get('q')
     category_id = request.GET.get('category')
     
-    listings = Listing.objects.all().order_by('-created')
+    listings = Listing.objects.exclude(status='Inactive').order_by('-created')
     categories = Category.objects.all()
     
     if query:
@@ -88,14 +88,27 @@ def post_item(request):
             listing = form.save(commit=False)
             listing.seller = request.user
             listing.save()
-            
+
             images = request.FILES.getlist('images')
             for img in images:
                 ListingImage.objects.create(listing=listing, image=img)
-                
+
             messages.success(request, "🎉 Item posted successfully with images!")
             return redirect('marketplace:index')
     else:
         form = ListingForm()
-        
+
     return render(request, 'marketplace/post_item.html', {'form': form})
+
+
+@login_required(login_url='marketplace:login')
+def deactivate_listing(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
+
+    if request.method == 'POST':
+        listing.status = 'Inactive'
+        listing.save()
+        messages.success(request, "Item has been taken down successfully.")
+        return redirect('marketplace:index')
+
+    return redirect('marketplace:listing_detail', listing_id=listing.id)
