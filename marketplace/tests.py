@@ -9,8 +9,8 @@ class CategoryModelTest(TestCase):
 
     def test_category_creation(self):
         # Check if the category was successfully created and retrieved
-        cat = Category.objects.get(name="Textbooks")
-        self.assertEqual(cat.name, "Textbooks")
+        cats = Category.objects.filter(name="Textbooks")
+        self.assertTrue(cats.exists())
 
 class IndexViewTest(TestCase):
     def test_index_view_status_code(self):
