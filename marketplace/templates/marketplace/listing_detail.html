@@ -106,7 +106,6 @@
                 });
             });
         }
-        // 多图轮播交互逻辑 (Front-end Interactivity) ==========
         const slides = document.querySelectorAll('.carousel-slide');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -116,7 +115,7 @@
             const totalSlides = slides.length;
 
             function updateSlider() {
-                // 1. 切换图片显示状态
+                // 1. status
                 slides.forEach((slide, index) => {
                     if (index === currentIndex) {
                         slide.classList.remove('d-none');
@@ -125,7 +124,7 @@
                     }
                 });
 
-                // 2. 左箭头逻辑
+                // 2. left
                 if (currentIndex === 0) {
                     prevBtn.disabled = true;
                     prevBtn.style.opacity = '0.3';
@@ -136,7 +135,7 @@
                     prevBtn.style.cursor = 'pointer';
                 }
 
-                // 3. 右箭头逻辑
+                // 3. right
                 if (currentIndex === totalSlides - 1) {
                     nextBtn.disabled = true;
                     nextBtn.style.opacity = '0.3';

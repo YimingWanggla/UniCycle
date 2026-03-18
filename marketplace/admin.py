@@ -3,7 +3,7 @@ from .models import User, Category, Listing, ListingImage, Message, Favourite, R
 
 class ListingImageInline(admin.TabularInline):
     model = ListingImage
-    extra = 1  # 默认显示1个空白的图片上传槽位
+    extra = 1  # By default, 1 empty image upload slot is displayed
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
