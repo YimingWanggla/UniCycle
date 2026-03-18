@@ -103,7 +103,11 @@ def post_item(request):
 
 @login_required(login_url='marketplace:login')
 def deactivate_listing(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id, seller=request.user)
+    listing = get_object_or_404(Listing, pk=listing_id)
+    
+    if request.user != listing.seller and not request.user.is_staff:
+        messages.error(request, "You do not have permission to take down this item.")
+        return redirect('marketplace:listing_detail', listing_id=listing.id)
 
     if request.method == 'POST':
         listing.status = 'Inactive'

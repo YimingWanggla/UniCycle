@@ -62,5 +62,20 @@ class ListingDeactivateTest(TestCase):
             reverse('marketplace:deactivate_listing', args=[self.listing.id])
         )
         self.listing.refresh_from_db()
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(self.listing.status, "Available")
+
+    def test_staff_user_can_deactivate_listing(self):
+        staff_user = get_user_model().objects.create_user(
+            username="admin@example.com",
+            email="admin@example.com",
+            password="testpass123",
+            is_staff=True,
+        )
+        self.client.login(email="admin@example.com", password="testpass123")
+        response = self.client.post(
+            reverse('marketplace:deactivate_listing', args=[self.listing.id])
+        )
+        self.listing.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.listing.status, "Inactive")
