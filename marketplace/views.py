@@ -3,7 +3,6 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Listing, ListingImage, Category
-from .forms import CustomUserCreationForm
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm, ListingForm
